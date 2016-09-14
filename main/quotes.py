@@ -5,10 +5,10 @@ import re
 
 class BashQuotes:
 
-    def get_quotes(self):
-        g = Grab(log_file="bash.html", url='bash.im')
-        g.go("bash.im")
-        bash = g.doc.select('.//div[@class="quote"]')
+    URL = 'bash.im'
+
+    @staticmethod
+    def _get_quotes(bash):
         quotes_dict = {}
         for k in range(bash.count()):
             try:
@@ -24,3 +24,15 @@ class BashQuotes:
             except DataNotFound:
                 pass
         return quotes_dict
+
+    def get_new_quotes(self):
+        g = Grab(url=self.URL)
+        g.go("bash.im")
+        bash = g.doc.select('.//div[@class="quote"]')
+        return self._get_quotes(bash)
+
+    def get_random_quotes(self):
+        g = Grab(url=self.URL + '/random')
+        g.go("bash.im")
+        bash = g.doc.select('.//div[@class="quote"]')
+        return self._get_quotes(bash)
