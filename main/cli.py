@@ -6,7 +6,7 @@ import quotes
 choices = "Новые Случайные".split()
 
 
-def menu(title, choices):
+def menu(title='Bash.im', choices="Новые Случайные".split()):
     body = [urwid.Text(title), urwid.Divider()]
     for c in choices:
         button = urwid.Button(c)
@@ -25,12 +25,12 @@ def show_random():
     return get_quotes_body(quotes_list)
 
 
-def get_quotes_body(quotes_list):
+def get_quotes_body(quotes_dict):
     body = []
-    for quote in quotes_list:
+    for quote in sorted(quotes_dict, reverse=True):
         text = ''
         text += quote + '\n'
-        text += quotes_list[quote] + '\n'
+        text += quotes_dict[quote] + '\n'
         body.append(urwid.Text(text))
         body.append(urwid.Divider())
     return body
@@ -53,9 +53,18 @@ def exit_program(button):
     raise urwid.ExitMainLoop()
 
 
+def show_menu():
+    main.original_widget = menu('Bash.im', choices)
+
+
+def process_input(key):
+    if key in ['TAB', 'tab']:
+        show_menu()
+
+
 main = urwid.Padding(menu(u'Bash.im', choices), left=2, right=2)
 top = urwid.Overlay(main, urwid.SolidFill(u'\N{MEDIUM SHADE}'),
                     align='center', width=('relative', 500),
                     valign='middle', height=('relative', 500),
                     min_width=40, min_height=20)
-urwid.MainLoop(top, palette=[('reversed', 'standout', '')]).run()
+urwid.MainLoop(top, unhandled_input=process_input, palette=[('reversed', 'standout', '')]).run()
