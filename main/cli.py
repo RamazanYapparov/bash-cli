@@ -1,5 +1,7 @@
+#!/usr/bin/python3.5
 import urwid
 import quotes
+# import main.quotes as quotes
 
 choices = "Новые Случайные".split()
 
@@ -14,12 +16,21 @@ def menu(title, choices):
 
 
 def show_new():
-    bash = quotes.BashQuotes()
+    quotes_list = quotes.BashQuotes().get_new_quotes()
+    return get_quotes_body(quotes_list)
+
+
+def show_random():
+    quotes_list = quotes.BashQuotes().get_random_quotes()
+    return get_quotes_body(quotes_list)
+
+
+def get_quotes_body(quotes_list):
     body = []
-    text = ''
-    for quote in bash.get_new_quotes():
+    for quote in quotes_list:
+        text = ''
         text += quote + '\n'
-        text += bash.get_new_quotes()[quote] + '\n'
+        text += quotes_list[quote] + '\n'
         body.append(urwid.Text(text))
         body.append(urwid.Divider())
     return body
@@ -28,6 +39,8 @@ def show_new():
 def item_chosen(button, choice):
     if choice == 'Новые':
         response = show_new()
+    elif choice == 'Случайные':
+        response = show_random()
     # response = urwid.Text([u'You chose ', choice, u'\n'])
     done = urwid.Button(u'Ok')
     response.append(urwid.AttrMap(done, None, focus_map='reversed'))
