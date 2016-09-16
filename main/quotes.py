@@ -20,7 +20,7 @@ class BashQuotes:
                 result = re.sub(r'&gt;', '>', result)
                 result = re.sub(r'<br>', '\n', result)
 
-                quotes_dict[quote_id] = result
+                quotes_dict[str(quote_id).split('#')[1]] = result
             except DataNotFound:
                 pass
         return quotes_dict
