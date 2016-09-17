@@ -38,18 +38,22 @@ def get_quotes_body(quotes_dict, random=False):
         quotes_dict = sorted(dict(quotes_dict[0]).items(), reverse=True)
 
         body.append(urwid.Text('Страница ' + str(cur[0])))
-        body.append(urwid.Divider())
-        body.append(urwid.Divider())
+        body.append(urwid.Divider(div_char='@'))
         body.append(urwid.Divider())
     else:
         quotes_dict = list(quotes_dict.items())
 
     for quote in quotes_dict:
-        text = ''
-        text += quote[0] + '\n\n'
-        text += quote[1] + '\n'
-        body.append(urwid.Text(text))
+        quote_id = quote[0]
+        body.append(urwid.Text(quote_id))
+        body.append(urwid.Divider(div_char='-'))
+        quote_text = ''
+        quote_text += quote[1] + '\n'
+        quote_text = quote_text[0:-1]
+        body.append(urwid.Text(quote_text))
+        body.append(urwid.Divider(div_char='-'))
         body.append(urwid.Divider())
+        body.append(urwid.Divider(div_char='@'))
         body.append(urwid.Divider())
     return body
 
@@ -94,15 +98,12 @@ def process_input(key):
         show_menu()
     elif key in ['q', 'Q', 'й', 'Й']:
         exit_program()
-    elif key in ['right', 'p'] and not args['is_random']:
+    elif key in ['right'] and not args['is_random']:
         show_page(show_next())
-    elif key in ['left', 'o'] and not args['is_random']:
+    elif key in ['left'] and not args['is_random']:
         show_page(show_prev())
     elif key in ['r', 'R', 'к', 'К'] and args['is_random']:
         show_page(show_random())
-    elif key in ['n']:
-        args['is_random'] = False
-        show_page(show_new())
 
 
 main = urwid.Padding(menu(u'Bash.im', choices), left=2, right=2)
