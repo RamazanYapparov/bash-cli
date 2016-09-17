@@ -4,7 +4,7 @@ import re
 
 
 class BashQuotes:
-    URL = 'bash.im'
+    URL = 'http://bash.im/'
     g = Grab()
     g.go(URL)
 
@@ -19,10 +19,12 @@ class BashQuotes:
     def _get_quotes_from_specified_page(self, page):
         if re.match('http://bash\.im/index/\d+', self.g.doc.url):
             self.g.go(str(page))
+        elif self.g.doc.url == self.URL:
+            self.g.go('index/' + str(page))
         else:
-            self.g.go(self.URL + '/index/' + str(page))
+            self.g.go(self.URL + 'index/' + str(page))
         bash = self.g.doc.select(self.quote_pattern)
-        return dict(sorted(self._get_quotes(bash).items(), reverse=True))
+        return dict(sorted(self._get_quotes(bash).items(), reverse=True)), self.current_page
 
     @staticmethod
     def _get_quotes(bash):
@@ -51,22 +53,16 @@ class BashQuotes:
         return self._get_quotes_from_specified_page(self.last_page)
 
     def get_next_page(self):
-        try:
-            if self.current_page != self.last_page:
-                self.current_page += 1
-            return self._get_quotes_from_specified_page(self.current_page)
-        except IndexError:
-            return {}
+        if self.current_page != self.last_page:
+            self.current_page += 1
+        return self._get_quotes_from_specified_page(self.current_page)
 
     def get_prev_page(self):
-        try:
-            if self.current_page != 1:
-                self.current_page -= 1
-            return self._get_quotes_from_specified_page(self.current_page)
-        except IndexError:
-            return {}
+        if self.current_page != 1:
+            self.current_page -= 1
+        return self._get_quotes_from_specified_page(self.current_page)
 
     def get_random_quotes(self):
-        self.g.go(self.URL + '/random')
+        self.g.go(self.URL + 'random')
         bash = self.g.doc.select(self.quote_pattern)
         return self._get_quotes(bash)
