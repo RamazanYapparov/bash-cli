@@ -5,19 +5,23 @@ import re
 
 class BashQuotes:
     URL = 'bash.im'
-    g = Grab(url=URL)
+    g = Grab()
     g.go(URL)
+
+    quote_pattern = './/div[@class="quote"]'
 
     def _get_current_page(self):
         bash = self.g.doc.select('.//input[@class="page"]').html()
         page = re.findall('max="\d*"', bash)
         page = re.sub('\D', '', str(page))
-        print(page)
         return int(page)
 
     def _get_quotes_from_specified_page(self, page):
-        self.g.go(self.URL + '/index/' + str(page))
-        bash = self.g.doc.select('.//div[@class="quote"]')
+        if page == self.last_page:
+            self.g.go(self.URL + '/index/' + str(page))
+        else:
+            self.g.go(str(page))
+        bash = self.g.doc.select(self.quote_pattern)
         return self._get_quotes(bash)
 
     @staticmethod
@@ -43,29 +47,26 @@ class BashQuotes:
 
     def __init__(self):
         self.last_page = self._get_current_page()
-        self.pages_list = [k for k in range(self.last_page)]
+        self.pages_list = [k for k in range(self.last_page + 1)]
 
     def get_new_quotes(self):
         return self._get_quotes_from_specified_page(self.last_page)
 
     def get_next_page(self, page):
-        cur_index = self.pages_list.index(page)
         try:
-            page = self.pages_list[cur_index + 1]
+            page += 1
             return self._get_quotes_from_specified_page(page)
         except IndexError:
-            pass
+            return {}
 
     def get_prev_page(self, page):
-        cur_index = self.pages_list.index(page)
         try:
-            page = self.pages_list[cur_index - 1]
+            page -= 1
             return self._get_quotes_from_specified_page(page)
         except IndexError:
-            pass
+            return {}
 
     def get_random_quotes(self):
-        g = Grab(url=self.URL + '/random')
-        g.go("bash.im")
-        bash = g.doc.select('.//div[@class="quote"]')
+        self.g.go(self.URL + '/random')
+        bash = self.g.doc.select(self.quote_pattern)
         return self._get_quotes(bash)
