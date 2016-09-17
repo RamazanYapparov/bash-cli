@@ -1,1 +1,1 @@
-Консольная читалка bash.im
+Command line interface for bash.im
