@@ -17,12 +17,12 @@ class BashQuotes:
         return int(page)
 
     def _get_quotes_from_specified_page(self, page):
-        if page == self.last_page:
-            self.g.go(self.URL + '/index/' + str(page))
-        else:
+        if re.match('http://bash\.im/index/\d+', self.g.doc.url):
             self.g.go(str(page))
+        else:
+            self.g.go(self.URL + '/index/' + str(page))
         bash = self.g.doc.select(self.quote_pattern)
-        return self._get_quotes(bash)
+        return dict(sorted(self._get_quotes(bash).items(), reverse=True))
 
     @staticmethod
     def _get_quotes(bash):
@@ -42,27 +42,27 @@ class BashQuotes:
                 pass
         return quotes_dict
 
-    # last_page = None
-    # pages_list = None
-
     def __init__(self):
         self.last_page = self._get_current_page()
+        self.current_page = self.last_page
         self.pages_list = [k for k in range(self.last_page + 1)]
 
     def get_new_quotes(self):
         return self._get_quotes_from_specified_page(self.last_page)
 
-    def get_next_page(self, page):
+    def get_next_page(self):
         try:
-            page += 1
-            return self._get_quotes_from_specified_page(page)
+            if self.current_page != self.last_page:
+                self.current_page += 1
+            return self._get_quotes_from_specified_page(self.current_page)
         except IndexError:
             return {}
 
-    def get_prev_page(self, page):
+    def get_prev_page(self):
         try:
-            page -= 1
-            return self._get_quotes_from_specified_page(page)
+            if self.current_page != 1:
+                self.current_page -= 1
+            return self._get_quotes_from_specified_page(self.current_page)
         except IndexError:
             return {}
 

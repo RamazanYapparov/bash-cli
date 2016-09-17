@@ -5,10 +5,8 @@ import quotes
 # import main.quotes as quotes
 
 choices = "Новые Случайные".split()
-
 bash = quotes.BashQuotes()
-
-cur_page = bash.last_page
+args = {}
 
 
 def menu(title='Bash.im', choices="Новые Случайные".split()):
@@ -32,43 +30,43 @@ def show_random():
 
 def get_quotes_body(quotes_dict, random=False):
     body = []
+
     if not random:
-        for quote in sorted(quotes_dict, reverse=True):
-            text = ''
-            text += quote + '\n'
-            text += quotes_dict[quote] + '\n'
-            body.append(urwid.Text(text))
-            body.append(urwid.Divider())
+        quotes_dict = sorted(dict(quotes_dict).items(), reverse=True)
     else:
-        for quote in quotes_dict:
-            text = ''
-            text += quote + '\n'
-            text += quotes_dict[quote] + '\n'
-            body.append(urwid.Text(text))
-            body.append(urwid.Divider())
+        quotes_dict = list(quotes_dict.items())
+
+    for quote in quotes_dict:
+        text = ''
+        text += quote[0] + '\n'
+        text += quote[1] + '\n'
+        body.append(urwid.Text(text))
+        body.append(urwid.Divider())
+        body.append(urwid.Divider())
     return body
 
 
 def show_next():
-    quotes_list = bash.get_next_page(cur_page)
+    quotes_list = bash.get_next_page()
     return get_quotes_body(quotes_list)
 
 
 def show_prev():
-    quotes_list = bash.get_prev_page(cur_page)
+    quotes_list = bash.get_prev_page()
     return get_quotes_body(quotes_list)
 
 
 def item_chosen(button, choice):
     if choice == 'Новые':
+        args['is_random'] = False
         response = show_new()
-    else: # choice == 'Случайные':
+    elif choice == 'Случайные':
+        args['is_random'] = True
         response = show_random()
     show_page(response)
 
 
-def show_page(response, **kwargs):
-    kwargs['page'] = ''
+def show_page(response):
     done = urwid.Button(u'Ok')
     response.append(urwid.AttrMap(done, None, focus_map='reversed'))
     urwid.connect_signal(done, 'click', exit_program)
@@ -88,10 +86,12 @@ def process_input(key):
         show_menu()
     elif key in ['q', 'Q']:
         exit_program()
-    elif key in ['right', 'p']:
+    elif key in ['right', 'p'] and not args['is_random']:
         show_page(show_next())
-    elif key in ['left', 'o']:
+    elif key in ['left', 'o'] and not args['is_random']:
         show_page(show_prev())
+    elif key in ['r', 'R'] and args['is_random']:
+        pass
 
 
 main = urwid.Padding(menu(u'Bash.im', choices), left=2, right=2)
