@@ -79,7 +79,6 @@ def item_chosen(button, choice):
 
 
 def show_page(response):
-    response.append(urwid.AttrMap(done, None, focus_map='reversed'))
     main.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(response))
 
 
