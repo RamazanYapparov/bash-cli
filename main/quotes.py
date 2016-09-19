@@ -1,4 +1,5 @@
 from grab import Grab
+from grab.error import GrabCouldNotResolveHostError
 from weblib.error import DataNotFound
 import re
 
@@ -6,7 +7,11 @@ import re
 class BashQuotes:
     URL = 'http://bash.im/'
     g = Grab()
-    g.go(URL)
+    try:
+        g.go(URL)
+    except GrabCouldNotResolveHostError:
+        print('Не удалось получить список цитат, проверьте ваше подключение к интернету')
+        exit()
 
     quote_pattern = './/div[@class="quote"]'
 
